@@ -2,6 +2,7 @@ package resource
 
 import (
 	"encoding/json"
+	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"lb/apis/v1alpha1"
 	"lb/internal/xds/processor"
@@ -61,6 +62,13 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	err = r.validate(writer, err, req)
+	if err != nil {
+		log.Info("Failed to validate request structures")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	listener := req.Listener
 	cluster := req.Cluster
 
@@ -72,6 +80,10 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 	exists = r.processor.ExistsClusterName(cluster.Name)
 	if !exists {
 		clusterHealthCheck := cluster.HealthCheck
+
+		if cluster.ConnectTimeout == 0 {
+			cluster.ConnectTimeout = 5
+		}
 
 		err := r.processor.AppendCluster(cluster.Name,
 			listener.Name,
@@ -137,6 +149,13 @@ func (r *Router) addBackend(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	err = r.validate(writer, err, req)
+	if err != nil {
+		log.Info("Failed to validate request structures")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	exists := r.processor.ExistsClusterName(req.ClusterName)
 	if !exists {
 		http.Error(writer, "cluster name doesn't exists", http.StatusBadRequest)
@@ -160,10 +179,28 @@ func (r *Router) addBackend(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func (r *Router) validate(writer http.ResponseWriter, err error, req any) error {
+	validate := validator.New()
+	err = validate.Struct(req)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *Router) removeBackend(writer http.ResponseWriter, request *http.Request) {
 	var req BackendRequest
 	err := json.NewDecoder(request.Body).Decode(&req)
 	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = r.validate(writer, err, req)
+	if err != nil {
+		log.Info("Failed to validate request structures")
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
