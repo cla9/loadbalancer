@@ -1,0 +1,51 @@
+### 1. Cluster 추가
+POST http://localhost:9003/cluster
+Content-Type: application/json
+
+{
+  "cluster" : {
+    "name" : "cluster_1",
+    "connect_timeout" : 2,
+    "health_check" : {
+      "path": "/",
+      "timeout": 1,
+      "interval" : 10,
+      "unhealthy_threshold" : 2,
+      "healthy_threshold" : 2
+    },
+    "healthy_panic_threshold" : 0.0,
+    "maglev_table_size" : 65537
+  },
+  "listener" : {
+    "name" : "listener_1",
+    "ip" : "127.0.0.1",
+    "port" : 9008
+  }
+}
+
+
+### 2. Cluster 삭제
+DELETE http://localhost:9003/cluster?name=cluster_1
+Content-Type: application/json
+
+
+### 3. Backend 추가
+POST http://localhost:9003/backend
+Content-Type: application/json
+
+{
+  "cluster_name": "cluster_1",
+  "ip": "127.0.0.1",
+  "port": 3001
+}
+
+
+### 4. Backend 삭제
+DELETE http://localhost:9003/backend
+Content-Type: application/json
+
+{
+  "cluster_name": "cluster_1",
+  "ip": "127.0.0.1",
+  "port": 3001
+}
