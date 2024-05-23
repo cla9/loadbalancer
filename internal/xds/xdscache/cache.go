@@ -17,7 +17,7 @@ func (xds *XDSCache) ClusterContents() []types.Resource {
 
 	for _, c := range xds.Clusters {
 
-		r = append(r, resources2.MakeCluster(c.Name, c.ConnectTimeout, c.HealthCheck, c.HealthPanicThreshold, c.Endpoints))
+		r = append(r, resources2.MakeCluster(c.Name, c.ConnectTimeout, c.HealthCheck, c.MaglevTableSize, c.HealthPanicThreshold, c.Endpoints))
 	}
 
 	return r
@@ -52,12 +52,13 @@ func (xds *XDSCache) AddListener(name string, address string, port uint32, filte
 	}
 }
 
-func (xds *XDSCache) AddCluster(clusterName string, listenerName string, connectTimeout time.Duration, healthCheck v1alpha1.HealthCheck, healthPanicThreshold float32) error {
+func (xds *XDSCache) AddCluster(clusterName string, listenerName string, connectTimeout time.Duration, maglevTableSize uint64, healthCheck v1alpha1.HealthCheck, healthPanicThreshold float32) error {
 
 	xds.Clusters[clusterName] = resources2.Cluster{
 		Name:                 clusterName,
 		ListenerName:         listenerName,
 		ConnectTimeout:       connectTimeout,
+		MaglevTableSize:      maglevTableSize,
 		HealthCheck:          healthCheck,
 		HealthPanicThreshold: healthPanicThreshold,
 	}

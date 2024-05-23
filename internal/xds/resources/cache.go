@@ -19,6 +19,7 @@ type Cluster struct {
 	ConnectTimeout       time.Duration
 	HealthCheck          v1alpha1.HealthCheck
 	HealthPanicThreshold float32
+	MaglevTableSize      uint64
 }
 
 type Endpoint struct {

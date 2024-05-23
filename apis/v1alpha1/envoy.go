@@ -52,7 +52,7 @@ type HttpHealthCheck struct {
 }
 
 type MaglevLbPolicy struct {
-	TableSize int `yaml:"table_size"`
+	TableSize uint64 `yaml:"table_size"`
 }
 
 type FilterChain struct {
