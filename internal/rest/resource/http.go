@@ -11,6 +11,10 @@ type ClusterRequest struct {
 	Listener Listener `json:"listener" validate:"required"`
 }
 
+type ClusterModificationRequest struct {
+	Cluster Cluster `json:"cluster" validate:"required"`
+}
+
 type Cluster struct {
 	Name                  string      `json:"name" validate:"required"`
 	ConnectTimeout        uint32      `json:"connect_timeout"`

@@ -34,6 +34,11 @@ func (r *Router) AppendEndpoints() []RouteConfig {
 		},
 		{
 			Path:     "/cluster",
+			Callback: r.modifyCluster,
+			Method:   "PUT",
+		},
+		{
+			Path:     "/cluster",
 			Callback: r.removeCluster,
 			Method:   "DELETE",
 		},
@@ -103,6 +108,68 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+	}
+
+	r.processor.SyncXds()
+	log.Info("synchronize successfully")
+
+	res := CommonResponse{
+		Message: "cluster : " + req.Cluster.Name + " is modified.",
+	}
+	err = json.NewEncoder(writer).Encode(res)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (r *Router) modifyCluster(writer http.ResponseWriter, request *http.Request) {
+	var req ClusterModificationRequest
+	err := json.NewDecoder(request.Body).Decode(&req)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = r.validate(writer, err, req)
+	if err != nil {
+		log.Info("Failed to validate request structures")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cluster := req.Cluster
+
+	exists := r.processor.ExistsClusterName(cluster.Name)
+	if !exists {
+		http.Error(writer, "cluster name doesn't exists", http.StatusBadRequest)
+		return
+	}
+
+	clusterHealthCheck := cluster.HealthCheck
+
+	if cluster.ConnectTimeout == 0 {
+		cluster.ConnectTimeout = 5
+	}
+
+	listenerName := r.processor.FindListenerNameByCluster(cluster.Name)
+
+	err = r.processor.ModifyCluster(cluster.Name,
+		listenerName,
+		time.Duration(cluster.ConnectTimeout)*time.Second,
+		cluster.MaglevTableSize,
+		cluster.HealthyPanicThreshold,
+		v1alpha1.HealthCheck{
+			Timeout:            time.Duration(clusterHealthCheck.Timeout) * time.Second,
+			Interval:           time.Duration(clusterHealthCheck.Interval) * time.Second,
+			UnhealthyThreshold: clusterHealthCheck.UnhealthyThreshold,
+			HealthyThreshold:   clusterHealthCheck.HealthyThreshold,
+			HttpHealthCheck: v1alpha1.HttpHealthCheck{
+				Path: clusterHealthCheck.Path,
+			},
+		})
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	r.processor.SyncXds()

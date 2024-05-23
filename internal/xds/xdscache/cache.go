@@ -65,6 +65,23 @@ func (xds *XDSCache) AddCluster(clusterName string, listenerName string, connect
 	return nil
 }
 
+func (xds *XDSCache) ModifyCluster(clusterName string, listenerName string, connectTimeout time.Duration, maglevTableSize uint64, healthCheck v1alpha1.HealthCheck, healthPanicThreshold float32) error {
+	_, ok := xds.Clusters[clusterName]
+	if ok {
+		delete(xds.Clusters, clusterName)
+	}
+
+	xds.Clusters[clusterName] = resources2.Cluster{
+		Name:                 clusterName,
+		ListenerName:         listenerName,
+		ConnectTimeout:       connectTimeout,
+		MaglevTableSize:      maglevTableSize,
+		HealthCheck:          healthCheck,
+		HealthPanicThreshold: healthPanicThreshold,
+	}
+	return nil
+}
+
 func (xds *XDSCache) AddEndpoint(clusterName, upstreamHost string, upstreamPort uint32) {
 	cluster := xds.Clusters[clusterName]
 

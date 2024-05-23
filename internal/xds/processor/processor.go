@@ -142,6 +142,11 @@ func (p *Processor) AppendCluster(clusterName string, listenerName string, conne
 	return err
 }
 
+func (p *Processor) ModifyCluster(clusterName string, listenerName string, connectionTimeout time.Duration, maglevTableSize uint64, healthPanicThreshold float32, healthCheck v1alpha1.HealthCheck) error {
+	err := p.xdsCache.ModifyCluster(clusterName, listenerName, connectionTimeout, maglevTableSize, healthCheck, healthPanicThreshold)
+	return err
+}
+
 func (p *Processor) RemoveCluster(clusterName string) {
 	p.xdsCache.RemoveCluster(clusterName)
 }
@@ -167,4 +172,8 @@ func (p *Processor) ExistsEndpoint(clusterName string, address string, port inte
 		}
 	}
 	return false
+}
+
+func (p *Processor) FindListenerNameByCluster(clusterName string) string {
+	return p.xdsCache.Clusters[clusterName].ListenerName
 }
