@@ -1,4 +1,4 @@
-envoy-config: config/envoy-config.yaml
+envoy-config:
 node-name: test-id
 grpc-port: 9002
 rest-port: 9003
