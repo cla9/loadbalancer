@@ -67,7 +67,7 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = r.validate(writer, err, req)
+	err = r.validate(err, req)
 	if err != nil {
 		log.Info("Failed to validate request structures")
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -137,7 +137,7 @@ func (r *Router) modifyCluster(writer http.ResponseWriter, request *http.Request
 		return
 	}
 
-	err = r.validate(writer, err, req)
+	err = r.validate(err, req)
 	if err != nil {
 		log.Info("Failed to validate request structures")
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -224,7 +224,7 @@ func (r *Router) addBackend(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = r.validate(writer, err, req)
+	err = r.validate(err, req)
 	if err != nil {
 		log.Info("Failed to validate request structures")
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -255,7 +255,7 @@ func (r *Router) addBackend(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func (r *Router) validate(writer http.ResponseWriter, err error, req any) error {
+func (r *Router) validate(err error, req any) error {
 	validate := validator.New()
 	err = validate.Struct(req)
 
@@ -273,7 +273,7 @@ func (r *Router) removeBackend(writer http.ResponseWriter, request *http.Request
 		return
 	}
 
-	err = r.validate(writer, err, req)
+	err = r.validate(err, req)
 	if err != nil {
 		log.Info("Failed to validate request structures")
 		http.Error(writer, err.Error(), http.StatusBadRequest)

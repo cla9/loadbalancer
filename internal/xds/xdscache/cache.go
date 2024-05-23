@@ -16,7 +16,6 @@ func (xds *XDSCache) ClusterContents() []types.Resource {
 	var r []types.Resource
 
 	for _, c := range xds.Clusters {
-
 		r = append(r, resources2.MakeCluster(c.Name, c.ConnectTimeout, c.HealthCheck, c.MaglevTableSize, c.HealthPanicThreshold, c.Endpoints))
 	}
 
