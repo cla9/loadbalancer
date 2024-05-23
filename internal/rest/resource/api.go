@@ -77,44 +77,51 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 	listener := req.Listener
 	cluster := req.Cluster
 
-	exists := r.processor.ExistsListener(listener.Name)
-	if !exists {
-		r.processor.AppendListener(cluster.Name, listener.Name, listener.Address, listener.Port)
+	exists := r.processor.ExistsClusterName(cluster.Name)
+	if exists {
+		http.Error(writer, "cluster name already exists", http.StatusBadRequest)
+		return
 	}
 
-	exists = r.processor.ExistsClusterName(cluster.Name)
-	if !exists {
-		clusterHealthCheck := cluster.HealthCheck
+	exists = r.processor.ExistsListener(listener.Name)
+	if exists {
+		http.Error(writer, "listener name already exists", http.StatusBadRequest)
+		return
+	}
 
-		if cluster.ConnectTimeout == 0 {
-			cluster.ConnectTimeout = 5
-		}
+	r.processor.AppendListener(cluster.Name, listener.Name, listener.Address, listener.Port)
 
-		err := r.processor.AppendCluster(cluster.Name,
-			listener.Name,
-			time.Duration(cluster.ConnectTimeout)*time.Second,
-			cluster.MaglevTableSize,
-			cluster.HealthyPanicThreshold,
-			v1alpha1.HealthCheck{
-				Timeout:            time.Duration(clusterHealthCheck.Timeout) * time.Second,
-				Interval:           time.Duration(clusterHealthCheck.Interval) * time.Second,
-				UnhealthyThreshold: clusterHealthCheck.UnhealthyThreshold,
-				HealthyThreshold:   clusterHealthCheck.HealthyThreshold,
-				HttpHealthCheck: v1alpha1.HttpHealthCheck{
-					Path: clusterHealthCheck.Path,
-				},
-			})
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
+	clusterHealthCheck := cluster.HealthCheck
+
+	if cluster.ConnectTimeout == 0 {
+		cluster.ConnectTimeout = 5
+	}
+
+	err = r.processor.AppendCluster(cluster.Name,
+		listener.Name,
+		time.Duration(cluster.ConnectTimeout)*time.Second,
+		cluster.MaglevTableSize,
+		cluster.HealthyPanicThreshold,
+		v1alpha1.HealthCheck{
+			Timeout:            time.Duration(clusterHealthCheck.Timeout) * time.Second,
+			Interval:           time.Duration(clusterHealthCheck.Interval) * time.Second,
+			UnhealthyThreshold: clusterHealthCheck.UnhealthyThreshold,
+			HealthyThreshold:   clusterHealthCheck.HealthyThreshold,
+			HttpHealthCheck: v1alpha1.HttpHealthCheck{
+				Path: clusterHealthCheck.Path,
+			},
+		})
+
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	r.processor.SyncXds()
 	log.Info("synchronize successfully")
 
 	res := CommonResponse{
-		Message: "cluster : " + req.Cluster.Name + " is modified.",
+		Message: "cluster : " + req.Cluster.Name + " is created.",
 	}
 	err = json.NewEncoder(writer).Encode(res)
 	if err != nil {
@@ -176,7 +183,7 @@ func (r *Router) modifyCluster(writer http.ResponseWriter, request *http.Request
 	log.Info("synchronize successfully")
 
 	res := CommonResponse{
-		Message: "cluster : " + req.Cluster.Name + " is created.",
+		Message: "cluster : " + req.Cluster.Name + " is modified.",
 	}
 	err = json.NewEncoder(writer).Encode(res)
 	if err != nil {
