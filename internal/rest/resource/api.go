@@ -202,8 +202,8 @@ func (r *Router) removeCluster(writer http.ResponseWriter, request *http.Request
 		http.Error(writer, "cluster name doesn't exists", http.StatusBadRequest)
 		return
 	}
-	r.processor.RemoveCluster(clusterName)
 	r.processor.RemoveListener(clusterName)
+	r.processor.RemoveCluster(clusterName)
 	r.processor.SyncXds()
 	log.Info("remove cluster successfully")
 
