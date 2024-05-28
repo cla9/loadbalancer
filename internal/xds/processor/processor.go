@@ -52,6 +52,7 @@ func (p *Processor) ProcessFile(path string) {
 
 	if path == "" {
 		p.Info("envoy config file doesn't exist. skip the file sync process")
+		p.SyncXds()
 		return
 	}
 

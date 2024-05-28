@@ -9,6 +9,7 @@ import (
 	v33 "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -39,6 +40,10 @@ func MakeCluster(clusterName string, connectTimeout time.Duration, health v1alph
 		LbPolicy:             cluster.Cluster_MAGLEV,
 		CommonLbConfig: &cluster.Cluster_CommonLbConfig{
 			HealthyPanicThreshold: &v33.Percent{Value: float64(healthPanicThreshold)},
+			ConsistentHashingLbConfig: &cluster.Cluster_CommonLbConfig_ConsistentHashingLbConfig{
+				UseHostnameForHashing: false,
+				HashBalanceFactor:     &wrappers.UInt32Value{Value: 100},
+			},
 		},
 		LoadAssignment: MakeEndpoint(clusterName, endpoints),
 		LbConfig: &cluster.Cluster_MaglevLbConfig_{
@@ -72,18 +77,39 @@ func MakeHTTPListener(listenerName, address string, port uint32, chains []v1alph
 				},
 			},
 		},
+		//ListenerFilters: []*listener.ListenerFilter{
+		//	{
+		//		Name: "envoy.filters.listener.proxy_protocol",
+		//		ConfigType: &listener.ListenerFilter_TypedConfig{
+		//			TypedConfig: mustMarshalAny(&proxy_protocolv3.ProxyProtocol{}),
+		//		},
+		//	},
+		//	{
+		//		Name: "envoy.filters.listener.original_src",
+		//		ConfigType: &listener.ListenerFilter_TypedConfig{
+		//			TypedConfig: mustMarshalAny(&originalsrcv3.OriginalSrc{}),
+		//		},
+		//	},
+		//},
 		FilterChains: []*listener.FilterChain{{
-			Filters: []*listener.Filter{{
-				Name: filter.Name,
-				ConfigType: &listener.Filter_TypedConfig{
-					TypedConfig: mustMarshalAny(&tcpproxy.TcpProxy{
-						StatPrefix: filter.TypeConfig.StatPrefix,
-						ClusterSpecifier: &tcpproxy.TcpProxy_Cluster{
-							Cluster: filter.TypeConfig.Cluster,
-						},
-					}),
+			Filters: []*listener.Filter{
+				{
+					Name: filter.Name,
+					ConfigType: &listener.Filter_TypedConfig{
+						TypedConfig: mustMarshalAny(&tcpproxy.TcpProxy{
+							StatPrefix: filter.TypeConfig.StatPrefix,
+							ClusterSpecifier: &tcpproxy.TcpProxy_Cluster{
+								Cluster: filter.TypeConfig.Cluster,
+							},
+							HashPolicy: []*v33.HashPolicy{
+								{
+									PolicySpecifier: &v33.HashPolicy_SourceIp_{},
+								},
+							},
+						}),
+					},
 				},
-			}},
+			},
 		}},
 	}
 }

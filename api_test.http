@@ -58,7 +58,7 @@ Content-Type: application/json
 {
   "cluster_name": "cluster_1",
   "ip": "127.0.0.1",
-  "port": 3001
+  "port": 8082
 }
 
 
@@ -69,5 +69,5 @@ Content-Type: application/json
 {
   "cluster_name": "cluster_1",
   "ip": "127.0.0.1",
-  "port": 3001
+  "port": 8082
 }
