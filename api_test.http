@@ -19,7 +19,8 @@ Content-Type: application/json
   "listener" : {
     "name" : "listener_1",
     "ip" : "127.0.0.1",
-    "port" : 9008
+    "port" : 9008,
+    "access_log_path" : "/home/cla9/envoy-access.log"
   }
 }
 

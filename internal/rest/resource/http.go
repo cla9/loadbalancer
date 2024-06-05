@@ -32,9 +32,10 @@ type HealthCheck struct {
 }
 
 type Listener struct {
-	Name    string `json:"name" validate:"required"`
-	Address string `json:"ip" validate:"required"`
-	Port    uint32 `json:"port" validate:"required"`
+	Name          string `json:"name" validate:"required"`
+	Address       string `json:"ip" validate:"required"`
+	Port          uint32 `json:"port" validate:"required"`
+	AccessLogPath string `json:"access_log_path" validate:"required"`
 }
 
 type CommonResponse struct {

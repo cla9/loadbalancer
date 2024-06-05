@@ -67,7 +67,7 @@ func (p *Processor) ProcessFile(path string) {
 
 	for _, l := range envoyConfig.Listeners {
 		socketAddress := l.Address.SocketAddress
-		p.xdsCache.AddListener(l.Name, socketAddress.Address, uint32(socketAddress.Port), l.FilterChains)
+		p.xdsCache.AddListener(l.Name, socketAddress.Address, uint32(socketAddress.Port), "/dev/null", l.FilterChains)
 		listenerMap[l.FilterChains[0].Filters[0].TypeConfig.Cluster] = l.Name
 	}
 
@@ -88,8 +88,8 @@ func (p *Processor) ExistsListener(listenerName string) bool {
 	return ok
 }
 
-func (p *Processor) AppendListener(clusterName string, listenerName string, address string, port uint32) {
-	p.xdsCache.AddListener(listenerName, address, port, []v1alpha1.FilterChain{
+func (p *Processor) AppendListener(clusterName string, listenerName string, address string, port uint32, accessLogPath string) {
+	p.xdsCache.AddListener(listenerName, address, port, accessLogPath, []v1alpha1.FilterChain{
 		{
 			Filters: []v1alpha1.Filter{
 				{

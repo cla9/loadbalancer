@@ -89,7 +89,7 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	r.processor.AppendListener(cluster.Name, listener.Name, listener.Address, listener.Port)
+	r.processor.AppendListener(cluster.Name, listener.Name, listener.Address, listener.Port, listener.AccessLogPath)
 
 	clusterHealthCheck := cluster.HealthCheck
 

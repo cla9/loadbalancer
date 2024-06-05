@@ -6,10 +6,11 @@ import (
 )
 
 type Listener struct {
-	Name         string
-	Address      string
-	Port         uint32
-	FilterChains []v1alpha1.FilterChain
+	Name          string
+	Address       string
+	Port          uint32
+	AccessLogPath string
+	FilterChains  []v1alpha1.FilterChain
 }
 
 type Cluster struct {

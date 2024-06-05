@@ -26,7 +26,7 @@ func (xds *XDSCache) ListenerContents() []types.Resource {
 	var r []types.Resource
 
 	for _, l := range xds.Listeners {
-		r = append(r, resources2.MakeHTTPListener(l.Name, l.Address, l.Port, l.FilterChains))
+		r = append(r, resources2.MakeHTTPListener(l.Name, l.Address, l.Port, l.AccessLogPath, l.FilterChains))
 	}
 
 	return r
@@ -42,12 +42,13 @@ func (xds *XDSCache) EndpointsContents() []types.Resource {
 	return r
 }
 
-func (xds *XDSCache) AddListener(name string, address string, port uint32, filterChains []v1alpha1.FilterChain) {
+func (xds *XDSCache) AddListener(name string, address string, port uint32, accessLogPath string, filterChains []v1alpha1.FilterChain) {
 	xds.Listeners[name] = resources2.Listener{
-		Name:         name,
-		Address:      address,
-		Port:         port,
-		FilterChains: filterChains,
+		Name:          name,
+		Address:       address,
+		Port:          port,
+		AccessLogPath: accessLogPath,
+		FilterChains:  filterChains,
 	}
 }
 
