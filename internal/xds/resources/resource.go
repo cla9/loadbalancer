@@ -9,6 +9,7 @@ import (
 	listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	filedaccesslogv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/access_loggers/file/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/listener/proxy_protocol/v3"
+	proxy_protocolv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/listener/proxy_protocol/v3"
 	tcpproxy "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
 	v33 "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -83,20 +84,20 @@ func MakeHTTPListener(listenerName, address string, port uint32, accessLogPath s
 				},
 			},
 		},
-		//ListenerFilters: []*listener.ListenerFilter{
-		//	{
-		//		Name: "envoy.filters.listener.proxy_protocol",
-		//		ConfigType: &listener.ListenerFilter_TypedConfig{
-		//			TypedConfig: mustMarshalAny(&proxy_protocolv3.ProxyProtocol{}),
-		//		},
-		//	},
-		//	{
-		//		Name: "envoy.filters.listener.original_src",
-		//		ConfigType: &listener.ListenerFilter_TypedConfig{
-		//			TypedConfig: mustMarshalAny(&originalsrcv3.OriginalSrc{}),
-		//		},
-		//	},
-		//},
+		ListenerFilters: []*listener.ListenerFilter{
+			{
+				Name: "envoy.filters.listener.proxy_protocol",
+				ConfigType: &listener.ListenerFilter_TypedConfig{
+					TypedConfig: mustMarshalAny(&proxy_protocolv3.ProxyProtocol{}),
+				},
+			},
+			//{
+			//	Name: "envoy.filters.listener.original_src",
+			//	ConfigType: &listener.ListenerFilter_TypedConfig{
+			//		TypedConfig: mustMarshalAny(&originalsrcv3.OriginalSrc{}),
+			//	},
+			//},
+		},
 		FilterChains: []*listener.FilterChain{{
 			Filters: []*listener.Filter{
 				{
