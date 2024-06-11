@@ -26,6 +26,7 @@ func setupFlags(cmd *cobra.Command) error {
 	cmd.Flags().Int("grpc-port", 10000, "Port to bind xds server on.")
 	cmd.Flags().Int("grpc-max-concurrent-streams", 1000000, "grpc max concurrent streams")
 	cmd.Flags().Int("rest-port", 10001, "Port to bind rest api server on.")
+	cmd.Flags().String("awx-url", "http://34.47.71.173:8080", "Awx url to spawn new envoy process.")
 
 	return viper.BindPFlags(cmd.Flags())
 }
@@ -68,6 +69,7 @@ func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 	c.cfg.GrpcPort = viper.GetInt("grpc-port")
 	c.cfg.GrpcMaxConcurrentStreams = viper.GetInt("grpc-max-concurrent-streams")
 	c.cfg.RestPort = viper.GetInt("rest-port")
+	c.cfg.AwxUrl = viper.GetString("awx-url")
 
 	return nil
 }

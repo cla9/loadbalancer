@@ -3,3 +3,4 @@ node-name: test-id
 grpc-port: 9002
 rest-port: 9003
 grpc-max-concurrent-streams: 1000000
+awx-url: http://34.47.71.173:8000

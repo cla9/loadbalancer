@@ -41,3 +41,7 @@ type Listener struct {
 type CommonResponse struct {
 	Message string `json:"message"`
 }
+
+type EnvoyRequest struct {
+	Key string `json:"host_config_key"`
+}

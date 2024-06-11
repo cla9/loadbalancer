@@ -1,7 +1,9 @@
 package agent
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	serverv3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	log "github.com/sirupsen/logrus"
@@ -26,6 +28,7 @@ type Config struct {
 	RestPort int
 	// xds server id.
 	NodeName string
+	AwxUrl   string
 }
 
 type Agent struct {
@@ -49,6 +52,7 @@ func New(config Config) (*Agent, error) {
 	}
 
 	setup := []func() error{
+		a.setUpExecuteEnvoy,
 		a.setupXdsServer,
 		a.setupRestServer,
 	}
@@ -129,4 +133,42 @@ func (a *Agent) Shutdown() error {
 		}
 	}
 	return nil
+}
+
+func (a *Agent) setUpExecuteEnvoy() error {
+
+	err := a.spawnEnvoy("/api/v2/job_templates/9/callback/")
+	if err != nil {
+		log.Fatalf("failed to spawn 1st envoy: %v", err)
+		os.Exit(1)
+	}
+	err = a.spawnEnvoy("/api/v2/job_templates/10/callback/")
+	if err != nil {
+		log.Fatalf("failed to spawn 2nd envoy: %v", err)
+		os.Exit(1)
+	}
+
+	return nil
+}
+
+func (a *Agent) spawnEnvoy(path string) error {
+	pbytes, _ := json.Marshal(resource.EnvoyRequest{
+		Key: "awxshell",
+	})
+	buff := bytes.NewBuffer(pbytes)
+	req, err := http.NewRequest("POST", a.Config.AwxUrl+path, buff)
+	if err != nil {
+		log.Fatalf("failed to spawn 1st envoy: %v", err)
+		os.Exit(1)
+	}
+
+	client := &http.Client{}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("failed to spawn 2nd envoy: %v", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	return err
 }
