@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-func MakeCluster(clusterName string, connectTimeout time.Duration, health v1alpha1.HealthCheck, maglevTableSize uint64, healthPanicThreshold float32, endpoints []Endpoint) *cluster.Cluster {
+func MakeCluster(clusterName string, connectTimeout time.Duration, health v1alpha1.HealthCheck, maglevTableSize uint64, healthPanicThreshold float32, hashBalanceFactory uint32, endpoints []Endpoint) *cluster.Cluster {
 
 	healthCheck := &core.HealthCheck{
 		Timeout:            durationpb.New(health.Timeout),                            //1초동안 응답이 없으면, 헬스체크 실패
@@ -49,7 +49,7 @@ func MakeCluster(clusterName string, connectTimeout time.Duration, health v1alph
 			HealthyPanicThreshold: &v33.Percent{Value: float64(healthPanicThreshold)},
 			ConsistentHashingLbConfig: &cluster.Cluster_CommonLbConfig_ConsistentHashingLbConfig{
 				UseHostnameForHashing: false,
-				HashBalanceFactor:     &wrappers.UInt32Value{Value: 100},
+				HashBalanceFactor:     &wrappers.UInt32Value{Value: hashBalanceFactory},
 			},
 		},
 		LoadAssignment: MakeEndpoint(clusterName, endpoints),

@@ -14,7 +14,8 @@ Content-Type: application/json
       "healthy_threshold" : 2
     },
     "healthy_panic_threshold" : 0.0,
-    "maglev_table_size" : 65537
+    "maglev_table_size" : 65537,
+    "hash_balancer_factor" : 0,
   },
   "listener" : {
     "name" : "listener_1",

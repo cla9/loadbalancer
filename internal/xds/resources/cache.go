@@ -21,6 +21,7 @@ type Cluster struct {
 	HealthCheck          v1alpha1.HealthCheck
 	HealthPanicThreshold float32
 	MaglevTableSize      uint64
+	HashBalancerFactor   uint32
 }
 
 type Endpoint struct {

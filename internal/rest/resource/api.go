@@ -102,6 +102,7 @@ func (r *Router) addCluster(writer http.ResponseWriter, request *http.Request) {
 		time.Duration(cluster.ConnectTimeout)*time.Second,
 		cluster.MaglevTableSize,
 		cluster.HealthyPanicThreshold,
+		cluster.HashBalanceFactor,
 		v1alpha1.HealthCheck{
 			Timeout:            time.Duration(clusterHealthCheck.Timeout) * time.Second,
 			Interval:           time.Duration(clusterHealthCheck.Interval) * time.Second,

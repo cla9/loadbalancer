@@ -21,6 +21,7 @@ type Cluster struct {
 	HealthCheck           HealthCheck `json:"health_check" validate:"required"`
 	HealthyPanicThreshold float32     `json:"healthy_panic_threshold"`
 	MaglevTableSize       uint64      `json:"maglev_table_size"`
+	HashBalanceFactor     uint32      `json:"hash_balance_factor"`
 }
 
 type HealthCheck struct {

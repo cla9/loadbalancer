@@ -72,7 +72,7 @@ func (p *Processor) ProcessFile(path string) {
 	}
 
 	for _, c := range envoyConfig.Clusters {
-		err := p.xdsCache.AddCluster(c.Name, listenerMap[c.Name], c.ConnectTimeout, c.MaglevLbPolicy.TableSize, c.HealthChecks[0], c.CommonLbConfig.HealthPanicThreshold)
+		err := p.xdsCache.AddCluster(c.Name, listenerMap[c.Name], c.ConnectTimeout, c.MaglevLbPolicy.TableSize, c.HealthChecks[0], c.CommonLbConfig.HealthPanicThreshold, 100)
 		if err != nil {
 			p.Errorf("error parsing cluster configuration: %+v", err)
 			os.Exit(1)
@@ -138,8 +138,8 @@ func (p *Processor) SyncXds() {
 	}
 }
 
-func (p *Processor) AppendCluster(clusterName string, listenerName string, connectionTimeout time.Duration, maglevTableSize uint64, healthPanicThreshold float32, healthCheck v1alpha1.HealthCheck) error {
-	err := p.xdsCache.AddCluster(clusterName, listenerName, connectionTimeout, maglevTableSize, healthCheck, healthPanicThreshold)
+func (p *Processor) AppendCluster(clusterName string, listenerName string, connectionTimeout time.Duration, maglevTableSize uint64, healthPanicThreshold float32, hashBalancerFactor uint32, healthCheck v1alpha1.HealthCheck) error {
+	err := p.xdsCache.AddCluster(clusterName, listenerName, connectionTimeout, maglevTableSize, healthCheck, healthPanicThreshold, hashBalancerFactor)
 	return err
 }
 
